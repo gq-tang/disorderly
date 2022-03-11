@@ -9,36 +9,56 @@
 package segment
 
 const (
-	GByte PropertyG=iota
+	GByte PropertyG = iota
 	G4K
 )
 
 const (
-	DB16Bit PropertyDB=iota
+	DB16Bit PropertyDB = iota
 	DB32Bit
 )
 
 const (
-	L32ModeOnly PropertyL=iota
+	L32ModeOnly PropertyL = iota
 )
 
 const (
-	AVLReserve PropertyAVL=iota
+	AVLReserve PropertyAVL = iota
 )
 
 const (
-	PUnValid PropertyP=iota
+	PUnValid PropertyP = iota
 	PValid
 )
 
 const (
-	DPLZero PropertyDPL=iota
+	DPLZero PropertyDPL = iota
 	DPLOne
 	DPLTwo
 	DPLThree
 )
 
 const (
-	SSystem PropertyS=iota
+	SSystem PropertyS = iota
 	SCodeData
+)
+
+const (
+	DataRO   TypeCodeData = iota // Read-Only
+	DataROA                      // Read-Only,accessed
+	DataRW                       // Read/Write
+	DataRWA                      // Read/Write,accessed
+	DataROE                      // Read-Only,expand-down
+	DataROEA                     // Read-Only,expand-down,accessed
+	DataRWE                      // Read/Write,expand-down
+	DataRWEA                     // Read/Write,expand-down,accessed
+
+	CodeE   // Execute-Only
+	CodeEA  // Execute-Only,accessed
+	CodeER  // Execute/Read
+	CodeERA // Execute/Read,accessed
+	CodeEC  // Execute-Only,conforming
+	CodeECA // Execute-Only,conforming,accessed
+	CodeRC  // Execute/Read-Only,conforming
+	CodeRCA // Execute/Read-Only,conforming,accessed
 )
