@@ -35,64 +35,66 @@ type (
 	TypeSystem   byte
 )
 
-type GDTType interface{
-	MarshalText()([]byte,error)
+type GDTType interface {
+	MarshalText() ([]byte, error)
 	Value() byte
 }
 
-func NewProperty(g PropertyG,db PropertyDB,l PropertyL,avl PropertyAVL,p PropertyP,dpl PropertyDPL,
-	s PropertyS,typ GDTType) GDTProperty{
+func NewProperty(g PropertyG, db PropertyDB, l PropertyL, avl PropertyAVL, p PropertyP, dpl PropertyDPL,
+	s PropertyS, typ GDTType) GDTProperty {
 	return GDTProperty{
-		G:    g&1,
-		DB:   db&1,
-		L:   l&1 ,
-		AVL:  avl&1,
-		P:    p&1,
-		DPL:  dpl&3,
-		S:    s&1,
+		G:    g & 1,
+		DB:   db & 1,
+		L:    l & 1,
+		AVL:  avl & 1,
+		P:    p & 1,
+		DPL:  dpl & 3,
+		S:    s & 1,
 		Type: typ,
 	}
 }
 
-func (pr *GDTProperty) DecodeHigh(high uint64){
-	g:=decodeBit(high,23,23)
-	pr.G=PropertyG(g)
+func (pr *GDTProperty) DecodeHigh(high uint64) {
+	g := decodeBit(high, 23, 23)
+	pr.G = PropertyG(g)
 
-	db:=decodeBit(high,22,22)
-	pr.DB=PropertyDB(db)
+	db := decodeBit(high, 22, 22)
+	pr.DB = PropertyDB(db)
 
-	l:=decodeBit(high,21,21)
-	pr.L=PropertyL(l)
+	l := decodeBit(high, 21, 21)
+	pr.L = PropertyL(l)
 
-	avl:=decodeBit(high,20,20)
-	pr.AVL=PropertyAVL(avl)
+	avl := decodeBit(high, 20, 20)
+	pr.AVL = PropertyAVL(avl)
 
-	p:=decodeBit(high,15,15)
-	pr.P=PropertyP(p)
+	p := decodeBit(high, 15, 15)
+	pr.P = PropertyP(p)
 
-	dpl:=decodeBit(high,13,14)
-	pr.DPL=PropertyDPL(dpl)
+	dpl := decodeBit(high, 13, 14)
+	pr.DPL = PropertyDPL(dpl)
 
-	s:=decodeBit(high,12,12)
-	pr.S=PropertyS(s)
+	s := decodeBit(high, 12, 12)
+	pr.S = PropertyS(s)
 
-	typ:=decodeBit(high,8,11)
-	if s==0 {
-		pr.Type=TypeSystem(typ)
-	}else {
-		pr.Type=TypeCodeData(typ)
+	typ := decodeBit(high, 8, 11)
+	if s == 0 {
+		pr.Type = TypeSystem(typ)
+	} else {
+		pr.Type = TypeCodeData(typ)
 	}
 }
+
+var format = "value: %d,desc: %s"
 
 func (p PropertyG) MarshalText() ([]byte, error) {
 	var info string
 	switch p {
 	case 0:
-		info = "1 byte"
+		info = fmt.Sprintf(format, p, "1 byte")
 	case 1:
-		info = "4K byte"
+		info = fmt.Sprintf(format, p, "4K byte")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, p, "invalid value")
 	}
 	return []byte(info), nil
 }
@@ -101,11 +103,11 @@ func (p PropertyDB) MarshalText() ([]byte, error) {
 	var info string
 	switch p {
 	case 0:
-		info = fmt.Sprintf("16-bit")
+		info = fmt.Sprintf(format, p, "16-bit")
 	case 1:
-		info = "32-bit"
+		info = fmt.Sprintf(format, p, "32-bit")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, p, "invalid value")
 	}
 	return []byte(info), nil
 }
@@ -114,10 +116,10 @@ func (p PropertyL) MarshalText() ([]byte, error) {
 	var info string
 	switch p {
 	case 0:
-		info = fmt.Sprintf("IA-32e mode only")
+		info = fmt.Sprintf(format, p, "IA-32e mode only")
 
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, p, "invalid value")
 	}
 	return []byte(info), nil
 }
@@ -126,11 +128,11 @@ func (p PropertyP) MarshalText() ([]byte, error) {
 	var info string
 	switch p {
 	case 0:
-		info = fmt.Sprintf("无效描述符")
+		info = fmt.Sprintf(format, p, "无效描述符")
 	case 1:
-		info = "有效"
+		info = fmt.Sprintf(format, p, "有效")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, p, "invalid value")
 	}
 	return []byte(info), nil
 }
@@ -139,16 +141,16 @@ func (p PropertyS) MarshalText() ([]byte, error) {
 	var info string
 	switch p {
 	case 0:
-		info = "system"
+		info = fmt.Sprintf(format, p, "system")
 	case 1:
-		info = "code/data"
+		info = fmt.Sprintf(format, p, "code/data")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, p, "invalid value")
 	}
 	return []byte(info), nil
 }
 
-func (t TypeCodeData) Value() byte{
+func (t TypeCodeData) Value() byte {
 	return byte(t)
 }
 
@@ -156,45 +158,45 @@ func (t TypeCodeData) MarshalText() ([]byte, error) {
 	var info string
 	switch t {
 	case 0:
-		info = "数据_只读"
+		info = fmt.Sprintf(format, t, "数据_只读")
 	case 1:
-		info = "数据_只读,已访问"
+		info = fmt.Sprintf(format, t, "数据_只读,已访问")
 	case 2:
-		info = "数据_可读/写"
+		info = fmt.Sprintf(format, t, "数据_可读/写")
 	case 3:
-		info = "数据_可读/写,已访问"
+		info = fmt.Sprintf(format, t, "数据_可读/写,已访问")
 	case 4:
-		info = "数据_向下扩展,只读"
+		info = fmt.Sprintf(format, t, "数据_向下扩展,只读")
 	case 5:
-		info = "数据_向下扩展,只读,已访问"
+		info = fmt.Sprintf(format, t, "数据_向下扩展,只读,已访问")
 	case 6:
-		info = "数据_向下扩展,可读/写"
+		info = fmt.Sprintf(format, t, "数据_向下扩展,可读/写")
 	case 7:
-		info = "数据_向下扩展,可读/写,已访问"
+		info = fmt.Sprintf(format, t, "数据_向下扩展,可读/写,已访问")
 
 	case 8:
-		info = "代码_仅执行"
+		info = fmt.Sprintf(format, t, "代码_仅执行")
 	case 9:
-		info = "代码_仅执行,已访问"
+		info = fmt.Sprintf(format, t, "代码_仅执行,已访问")
 	case 10:
-		info = "代码_执行/可读"
+		info = fmt.Sprintf(format, t, "代码_执行/可读")
 	case 11:
-		info = "代码_执行/可读,已访问"
+		info = fmt.Sprintf(format, t, "代码_执行/可读,已访问")
 	case 12:
-		info = "代码_一致性段,仅执行"
+		info = fmt.Sprintf(format, t, "代码_一致性段,仅执行")
 	case 13:
-		info = "代码_一致性段,仅执行,已访问"
+		info = fmt.Sprintf(format, t, "代码_一致性段,仅执行,已访问")
 	case 14:
-		info = "代码_一致性段,执行/可读"
+		info = fmt.Sprintf(format, t, "代码_一致性段,执行/可读")
 	case 15:
-		info = "代码_一致性段,执行/可读,已访问"
+		info = fmt.Sprintf(format, t, "代码_一致性段,执行/可读,已访问")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, t, "invalid value")
 	}
 	return []byte(info), nil
 }
 
-func (t TypeSystem) Value() byte{
+func (t TypeSystem) Value() byte {
 	return byte(t)
 }
 
@@ -202,40 +204,40 @@ func (t TypeSystem) MarshalText() ([]byte, error) {
 	var info string
 	switch t {
 	case 0:
-		info = "系统_保留"
+		info = fmt.Sprintf(format, t, "系统_保留")
 	case 1:
-		info = "系统_16-Bit TSS(Available)"
+		info = fmt.Sprintf(format, t, "系统_16-Bit TSS(Available)")
 	case 2:
-		info = "系统_LDT"
+		info = fmt.Sprintf(format, t, "系统_LDT")
 	case 3:
-		info = "系统_16-Bit TSS(Busy)"
+		info = fmt.Sprintf(format, t, "系统_16-Bit TSS(Busy)")
 	case 4:
-		info = "系统_16-Bit Call Gate"
+		info = fmt.Sprintf(format, t, "系统_16-Bit Call Gate")
 	case 5:
-		info = "系统_Task Gate"
+		info = fmt.Sprintf(format, t, "系统_Task Gate")
 	case 6:
-		info = "系统_16-Bit Interrupt Gate"
+		info = fmt.Sprintf(format, t, "系统_16-Bit Interrupt Gate")
 	case 7:
-		info = "系统_16-Bit Trap Gate"
+		info = fmt.Sprintf(format, t, "系统_16-Bit Trap Gate")
 
 	case 8:
-		info = "系统_保留"
+		info = fmt.Sprintf(format, t, "系统_保留")
 	case 9:
-		info = "系统_32-Bit TSS(Available)"
+		info = fmt.Sprintf(format, t, "系统_32-Bit TSS(Available)")
 	case 10:
-		info = "系统_保留"
+		info = fmt.Sprintf(format, t, "系统_保留")
 	case 11:
-		info = "系统_32-Bit TSS(Busy)"
+		info = fmt.Sprintf(format, t, "系统_32-Bit TSS(Busy)")
 	case 12:
-		info = "系统_32-Bit Call Gate"
+		info = fmt.Sprintf(format, t, "系统_32-Bit Call Gate")
 	case 13:
-		info = "系统_保留"
+		info = fmt.Sprintf(format, t, "系统_保留")
 	case 14:
-		info = "系统_32-Bit Interrupt Gate"
+		info = fmt.Sprintf(format, t, "系统_32-Bit Interrupt Gate")
 	case 15:
-		info = "系统_32-Bit Trap Gate"
+		info = fmt.Sprintf(format, t, "系统_32-Bit Trap Gate")
 	default:
-		info = "error"
+		info = fmt.Sprintf(format, t, "invalid value")
 	}
 	return []byte(info), nil
 }
